@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leslie Tracker — June 2026</title>
+<style>
+  :root {
+    --blue:#1a4fa0;--blue-lt:#e8f0fb;--green:#1a7a3c;--green-lt:#e6f7ec;
+    --red:#b91c1c;--red-lt:#fef2f2;--amber:#b45309;--amber-lt:#fffbeb;
+    --gray:#374151;--gray-lt:#f3f4f6;--border:#d1d5db;--white:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;font-size:13px;background:#f0f2f5;color:var(--gray)}
+  h1{font-size:20px;font-weight:700;color:var(--blue)}
+  h2{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:8px}
+  h3{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+
+  /* ── Layout ── */
+  .header{background:var(--blue);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .header h1{color:#fff}
+  .header .sub{font-size:11px;opacity:.8;margin-top:2px}
+  .tabs{background:#fff;border-bottom:2px solid var(--border);padding:0 16px;display:flex;gap:0}
+  .tab{padding:10px 18px;cursor:pointer;font-size:13px;font-weight:600;color:#6b7280;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+  .tab:hover:not(.active){color:var(--gray);background:var(--gray-lt)}
+  .page{display:none;padding:16px}
+  .page.active{display:block}
+
+  /* ── Cards ── */
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .card{background:#fff;border-radius:8px;border:1px solid var(--border);padding:14px 18px;min-width:140px;flex:1}
+  .card.wide{flex:2}
+  .card-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+  .card-value{font-size:26px;font-weight:700;color:var(--blue)}
+  .card-sub{font-size:11px;color:#9ca3af;margin-top:3px}
+  .card.good .card-value{color:var(--green)}
+  .card.bad .card-value{color:var(--red)}
+  .card.warn .card-value{color:var(--amber)}
+
+  /* ── Tables ── */
+  .tbl-wrap{background:#fff;border-radius:8px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse}
+  th{background:var(--blue);color:#fff;padding:7px 10px;text-align:left;font-size:12px;font-weight:600}
+  th.right,td.right{text-align:right}
+  th.center,td.center{text-align:center}
+  td{padding:6px 10px;border-top:1px solid var(--border);font-size:12px}
+  tr:nth-child(even) td{background:#fafafa}
+  tr.total td{background:var(--blue-lt);font-weight:700;border-top:2px solid var(--blue)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+  .badge-green{background:var(--green-lt);color:var(--green)}
+  .badge-red{background:var(--red-lt);color:var(--red)}
+  .badge-amber{background:var(--amber-lt);color:var(--amber)}
+
+  /* ── Progress bars ── */
+  .prog-wrap{background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden}
+  .prog-bar{height:100%;border-radius:4px;background:var(--blue);transition:width .3s}
+  .prog-bar.green{background:var(--green)}
+  .prog-bar.red{background:var(--red)}
+  .prog-bar.amber{background:var(--amber)}
+
+  /* ── Forms / Inputs ── */
+  input[type=number]{width:70px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:right}
+  input[type=number]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,79,160,.15)}
+  .btn{padding:7px 16px;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600}
+  .btn-blue{background:var(--blue);color:#fff}
+  .btn-blue:hover{background:#163d80}
+  .btn-gray{background:var(--gray-lt);color:var(--gray);border:1px solid var(--border)}
+  .btn-gray:hover{background:#e5e7eb}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{background:#991b1b}
+
+  /* ── Daily log ── */
+  .day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .day-card{background:#fff;border-radius:8px;border:1px solid var(--border);padding:12px}
+  .day-card h3{color:var(--blue);font-size:13px;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:8px}
+  .day-card.has-data{border-left:3px solid var(--green)}
+  .day-card.no-data{opacity:.6}
+  .rep-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:1px solid #f3f4f6;font-size:11px}
+  .rep-name{font-weight:600;width:80px;flex-shrink:0}
+  .mini-cell{width:38px;text-align:center}
+
+  /* ── Import tab ── */
+  .import-section{background:#fff;border-radius:8px;border:1px solid var(--border);padding:16px;margin-bottom:16px}
+  textarea{width:100%;height:180px;font-family:monospace;font-size:11px;border:1px solid var(--border);border-radius:4px;padding:8px;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--blue)}
+  .import-instructions{background:var(--blue-lt);border-radius:6px;padding:12px;margin-bottom:12px;font-size:12px;line-height:1.6}
+  .import-instructions strong{color:var(--blue)}
+  .col-map{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .col-item{background:#fff;border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:11px}
+  .col-item span{color:var(--blue);font-weight:700}
+  .result-msg{padding:8px 12px;border-radius:4px;font-size:12px;font-weight:600;margin-top:8px;display:none}
+  .result-msg.ok{background:var(--green-lt);color:var(--green)}
+  .result-msg.err{background:var(--red-lt);color:var(--red)}
+
+  /* ── Forecast ── */
+  .scenario-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .scenario-card{background:#fff;border-radius:8px;border:2px solid var(--border);padding:14px;text-align:center}
+  .scenario-card.best{border-color:var(--green)}
+  .scenario-card.base{border-color:var(--blue)}
+  .scenario-card.worst{border-color:var(--red)}
+  .sc-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px}
+  .sc-value{font-size:28px;font-weight:700}
+  .sc-pct{font-size:11px;margin-top:4px;color:#6b7280}
+  .best .sc-value{color:var(--green)}
+  .base .sc-value{color:var(--blue)}
+  .worst .sc-value{color:var(--red)}
+
+  /* ── Alert ── */
+  .alert{border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-weight:600}
+  .alert-green{background:var(--green-lt);color:var(--green);border-left:4px solid var(--green)}
+  .alert-red{background:var(--red-lt);color:var(--red);border-left:4px solid var(--red)}
+  .alert-amber{background:var(--amber-lt);color:var(--amber);border-left:4px solid var(--amber)}
+
+  .section-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:700px){.section-row{grid-template-columns:1fr}.scenario-cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Leslie Heating &amp; Cooling — Sales Tracker</h1>
+    <div class="sub">June 2026 &nbsp;|&nbsp; Source: Nexstar Sales Manager Pace Report</div>
+  </div>
+  <div style="text-align:right;font-size:12px;opacity:.8" id="hdr-mtd"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Overview</div>
+  <div class="tab" onclick="showTab('daily')">Daily Log</div>
+  <div class="tab" onclick="showTab('team')">Team</div>
+  <div class="tab" onclick="showTab('forecast')">Forecast</div>
+  <div class="tab" onclick="showTab('import')">Import Data</div>
+</div>
+
+<!-- ══════════════════════ OVERVIEW ══════════════════════ -->
+<div class="page active" id="tab-overview">
+  <div class="cards" id="ov-cards"></div>
+  <div class="cards" id="ov-avg-cards"></div>
+  <div id="ov-alert"></div>
+  <div class="section-row">
+    <div>
+      <div class="tbl-wrap">
+        <table id="ov-rep-tbl">
+          <thead><tr>
+            <th>Consultant</th>
+            <th class="right">TGL Appts</th><th class="right">TGL Deals</th>
+            <th class="right">MKT Appts</th><th class="right">MKT Deals</th>
+            <th class="right">Revenue</th><th class="right">Close %</th>
+          </tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2>Monthly Progress</h2>
+      <div id="ov-progress"></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table id="ov-weekly">
+      <thead><tr>
+        <th>Week</th><th class="right">TGL Appts</th><th class="right">TGL Deals</th>
+        <th class="right">MKT Appts</th><th class="right">MKT Deals</th>
+        <th class="right">Revenue</th><th class="right">Close %</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ DAILY LOG ══════════════════════ -->
+<div class="page" id="tab-daily">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <h2 style="margin:0">Daily Log — June 2026</h2>
+    <span style="font-size:11px;color:#6b7280">Click a day to edit</span>
+  </div>
+  <div class="day-grid" id="day-grid"></div>
+
+  <!-- Edit modal -->
+  <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;overflow:auto">
+    <div style="background:#fff;border-radius:10px;max-width:640px;margin:40px auto;padding:20px;position:relative">
+      <h2 id="modal-title" style="margin-bottom:14px"></h2>
+      <div style="margin-bottom:10px;font-size:12px;color:#6b7280">Service Calls: <input type="number" id="m-calls" style="width:80px"> &nbsp; <span style="font-size:11px">(team total for this day)</span></div>
+      <table style="width:100%;border-collapse:collapse" id="modal-table">
+        <thead><tr style="background:var(--blue);color:#fff">
+          <th style="padding:7px;font-size:12px;text-align:left">Rep</th>
+          <th style="padding:7px;font-size:12px;text-align:center">TGL<br>Appts</th>
+          <th style="padding:7px;font-size:12px;text-align:center">TGL<br>Deals</th>
+          <th style="padding:7px;font-size:12px;text-align:center">TGL<br>Rev $</th>
+          <th style="padding:7px;font-size:12px;text-align:center">MKT<br>Appts</th>
+          <th style="padding:7px;font-size:12px;text-align:center">MKT<br>Deals</th>
+          <th style="padding:7px;font-size:12px;text-align:center">MKT<br>Rev $</th>
+        </tr></thead>
+        <tbody id="modal-tbody"></tbody>
+      </table>
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button class="btn btn-gray" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-blue" onclick="saveDay()">Save Day</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TEAM ══════════════════════ -->
+<div class="page" id="tab-team">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <h2 style="margin:0">Team Performance</h2>
+    <button class="btn btn-gray" style="font-size:11px;padding:4px 10px" onclick="addRep()">+ Add Rep</button>
+  </div>
+  <div class="tbl-wrap">
+    <table id="team-tbl">
+      <thead><tr>
+        <th>Consultant</th>
+        <th class="right">TGL Appts</th><th class="right">TGL Deals</th><th class="right">TGL Close%</th>
+        <th class="right">MKT Appts</th><th class="right">MKT Deals</th><th class="right">MKT Close%</th>
+        <th class="right">Total Deals</th><th class="right">Total Rev</th><th class="right">Avg Sale</th><th class="right">Overall Close%</th>
+        <th class="center">Actions</th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+  <div class="section-row">
+    <div>
+      <h2>Close Rate Matrix</h2>
+      <div class="tbl-wrap">
+        <table id="cr-matrix">
+          <thead><tr><th>Rep</th><th class="center">TGL Close%</th><th class="center">MKT Close%</th><th class="center">Overall</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2>Revenue Contribution</h2>
+      <div class="tbl-wrap">
+        <table id="rev-contrib">
+          <thead><tr><th>Rep</th><th class="right">Revenue</th><th class="right">% of Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ FORECAST ══════════════════════ -->
+<div class="page" id="tab-forecast">
+  <div class="cards" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-label">Monthly Target</div>
+      <div class="card-value" id="fc-target">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Days Worked</div>
+      <div class="card-value" id="fc-days-worked">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Days Remaining</div>
+      <div class="card-value" id="fc-days-rem">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">MTD Revenue</div>
+      <div class="card-value" id="fc-mtd">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Daily Rev Needed</div>
+      <div class="card-value" id="fc-daily-needed">—</div>
+    </div>
+  </div>
+  <div class="scenario-cards">
+    <div class="scenario-card best"><div class="sc-label">Best Case</div><div class="sc-value" id="sc-best">—</div><div class="sc-pct" id="sc-best-pct"></div></div>
+    <div class="scenario-card base"><div class="sc-label">Base Case</div><div class="sc-value" id="sc-base">—</div><div class="sc-pct" id="sc-base-pct"></div></div>
+    <div class="scenario-card worst"><div class="sc-label">Worst Case</div><div class="sc-value" id="sc-worst">—</div><div class="sc-pct" id="sc-worst-pct"></div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Scenario</th><th class="right">Projected Revenue</th><th class="right">vs. Target</th><th class="right">Close Rate Used</th><th class="right">Avg Sale Used</th></tr></thead>
+      <tbody id="fc-scenario-rows"></tbody>
+    </table>
+  </div>
+  <div style="background:#fff;border-radius:8px;border:1px solid var(--border);padding:16px">
+    <h2>Assumptions</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:10px">
+      <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Monthly Target ($)</div>
+        <input type="number" id="cfg-target" style="width:130px" onchange="saveConfig();render()"></div>
+      <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Working Days (month)</div>
+        <input type="number" id="cfg-workdays" style="width:80px" onchange="saveConfig();render()"></div>
+      <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">TGL Avg Sale ($)</div>
+        <input type="number" id="cfg-tgl-avg" style="width:100px" onchange="saveConfig();render()"></div>
+      <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">MKT Avg Sale ($)</div>
+        <input type="number" id="cfg-mkt-avg" style="width:100px" onchange="saveConfig();render()"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ IMPORT ══════════════════════ -->
+<div class="page" id="tab-import">
+  <div class="import-section">
+    <h2>Import from Nexstar Pace Report</h2>
+    <div class="import-instructions">
+      <strong>How to update daily from the Pace Report Excel:</strong><br>
+      1. Open your <em>June_2026_Sales_Manager_Pace_Report.xlsx</em> file<br>
+      2. Go to the sheet for today's date (e.g. <strong>"8th"</strong>)<br>
+      3. Scroll to the per-rep grid at the bottom of the sheet (below <strong>"Calls Ran"</strong>)<br>
+      4. Select and copy the rep rows including the header row: columns are<br>
+      &nbsp;&nbsp;&nbsp;<strong>Rep Name | TGL | TGL Conv | TGL Rev | MKT | MKT Conv | MKT Rev</strong><br>
+      5. Paste below and click <strong>Import Day</strong><br><br>
+      <strong>Column order expected (tab-separated from Excel copy):</strong>
+      <div class="col-map">
+        <div class="col-item"><span>Col 1</span> — Rep Name</div>
+        <div class="col-item"><span>Col 2</span> — TGL Appointments</div>
+        <div class="col-item"><span>Col 3</span> — TGL Deals Closed</div>
+        <div class="col-item"><span>Col 4</span> — TGL Revenue</div>
+        <div class="col-item"><span>Col 5</span> — MKT Appointments</div>
+        <div class="col-item"><span>Col 6</span> — MKT Deals Closed</div>
+        <div class="col-item"><span>Col 7</span> — MKT Revenue</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <div>
+        <label style="font-size:12px;font-weight:600">Day of Month:</label>
+        <input type="number" id="imp-day" min="1" max="31" style="width:60px;margin-left:6px">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600">Service Calls:</label>
+        <input type="number" id="imp-calls" min="0" style="width:70px;margin-left:6px">
+      </div>
+    </div>
+    <textarea id="imp-paste" placeholder="Paste data from Excel here..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn btn-blue" onclick="importPaste()">Import Day</button>
+      <button class="btn btn-gray" onclick="document.getElementById('imp-paste').value=''">Clear</button>
+    </div>
+    <div class="result-msg" id="imp-result"></div>
+  </div>
+
+  <div class="import-section">
+    <h2>ServiceTitan Export (Technician Performance)</h2>
+    <div class="import-instructions">
+      <strong>Alternative: import from ServiceTitan Technician Performance report</strong><br>
+      1. In ServiceTitan → Reports → Sales → Technician Performance<br>
+      2. Filter by Business Unit (Sales), set date range to today<br>
+      3. Expand MKT and TGL columns, use "Close Rate As Of"<br>
+      4. Copy the data rows and paste below<br><br>
+      <strong>Expected columns:</strong>
+      <div class="col-map">
+        <div class="col-item"><span>Technician</span> — Rep name</div>
+        <div class="col-item"><span>MKT Opportunities</span> — MKT Appts</div>
+        <div class="col-item"><span>MKT Jobs Sold</span> — MKT Deals</div>
+        <div class="col-item"><span>MKT Revenue</span> — MKT Revenue</div>
+        <div class="col-item"><span>TGL Opportunities</span> — TGL Appts</div>
+        <div class="col-item"><span>TGL Jobs Sold</span> — TGL Deals</div>
+        <div class="col-item"><span>TGL Revenue</span> — TGL Revenue</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <div>
+        <label style="font-size:12px;font-weight:600">Day of Month:</label>
+        <input type="number" id="st-day" min="1" max="31" style="width:60px;margin-left:6px">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600">Service Calls:</label>
+        <input type="number" id="st-calls" min="0" style="width:70px;margin-left:6px">
+      </div>
+    </div>
+    <textarea id="st-paste" placeholder="Paste ServiceTitan Technician Performance data here..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-blue" onclick="importST()">Import ST Data</button>
+      <button class="btn btn-gray" onclick="document.getElementById('st-paste').value=''">Clear</button>
+    </div>
+    <div class="result-msg" id="st-result"></div>
+  </div>
+
+  <div class="import-section">
+    <h2>Data Management</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gray" onclick="exportJSON()">Export Backup (JSON)</button>
+      <button class="btn btn-red" onclick="resetAll()">Reset All Data</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// DATA — seeded from June_2026_Sales_Manager_Pace_Report.xlsx
+// ══════════════════════════════════════════════════════════════════
+
+const PACE_DATA = {"1":{"calls":18,"reps":{"Jeremy M.":{"tgl_appts":3,"tgl_deals":2,"tgl_rev":23330,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0}}},"2":{"calls":1,"reps":{"Jeremy M.":{"tgl_appts":2,"tgl_deals":1,"tgl_rev":13500,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":2,"tgl_deals":1,"tgl_rev":15385,"mkt_appts":2,"mkt_deals":0,"mkt_rev":0}}},"3":{"calls":0,"reps":{"Jeremy M.":{"tgl_appts":3,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":2,"tgl_deals":1,"tgl_rev":11476,"mkt_appts":0,"mkt_deals":1,"mkt_rev":13800}}},"4":{"calls":19,"reps":{"Jeremy M.":{"tgl_appts":2,"tgl_deals":2,"tgl_rev":38444,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":1,"mkt_deals":1,"mkt_rev":22500}}},"5":{"calls":19,"reps":{"Jeremy M.":{"tgl_appts":2,"tgl_deals":2,"tgl_rev":34793,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":1,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0}}},"6":{"calls":27,"reps":{"Jeremy M.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":1,"tgl_deals":1,"tgl_rev":15318,"mkt_appts":1,"mkt_deals":1,"mkt_rev":9000},"Tom O.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":2,"mkt_deals":0,"mkt_rev":0}}},"7":{"calls":28,"reps":{"Jeremy M.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Justin B.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0}}},"8":{"calls":26,"reps":{"Jeremy M.":{"tgl_appts":1,"tgl_deals":0,"tgl_rev":0,"mkt_appts":1,"mkt_deals":1,"mkt_rev":8000},"Justin B.":{"tgl_appts":1,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"Tom O.":{"tgl_appts":0,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0}}}};
+
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY = 'leslie_tracker_v7';
+const CONFIG_KEY  = 'leslie_config_v7';
+
+const DEFAULT_CONFIG = {
+  target: 1500000,
+  workdays: 22,
+  tglAvg: 16000,
+  mktAvg: 13500,
+  repNames: ['Jeremy M.', 'Justin B.', 'Tom O.']
+};
+
+function loadConfig() {
+  try { return {...DEFAULT_CONFIG, ...JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}')}; }
+  catch(e){ return {...DEFAULT_CONFIG}; }
+}
+
+function saveConfig() {
+  const c = loadConfig();
+  c.target    = +document.getElementById('cfg-target').value    || c.target;
+  c.workdays  = +document.getElementById('cfg-workdays').value  || c.workdays;
+  c.tglAvg    = +document.getElementById('cfg-tgl-avg').value   || c.tglAvg;
+  c.mktAvg    = +document.getElementById('cfg-mkt-avg').value   || c.mktAvg;
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(c));
+}
+
+function loadData() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if (stored) return stored;
+  } catch(e){}
+  // First load: seed from pace report
+  const d = {};
+  for (let day = 1; day <= 31; day++) {
+    const pd = PACE_DATA[day];
+    if (pd) {
+      d[day] = { calls: pd.calls, reps: {} };
+      for (const [rep, vals] of Object.entries(pd.reps)) {
+        d[day].reps[rep] = {...vals};
+      }
+    } else {
+      d[day] = { calls: 0, reps: {} };
+    }
+  }
+  return d;
+}
+
+function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+let DATA = loadData();
+let CFG  = loadConfig();
+let editingDay = null;
+
+// ══════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════
+
+function fmt$(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtN(n){ return n===0?'—':n.toLocaleString(); }
+function pct(a,b){ return b ? Math.round(100*a/b)+'%' : '—'; }
+function pctN(a,b){ return b ? (a/b) : 0; }
+
+function allReps() { return CFG.repNames || DEFAULT_CONFIG.repNames; }
+
+function daysWithData() {
+  return Object.entries(DATA)
+    .filter(([,d])=> d && Object.values(d.reps||{}).some(r=> r.tgl_appts||r.tgl_deals||r.mkt_appts||r.mkt_deals))
+    .map(([k])=>+k)
+    .sort((a,b)=>a-b);
+}
+
+function mtdTotals() {
+  const t = { tgl_appts:0, tgl_deals:0, tgl_rev:0, mkt_appts:0, mkt_deals:0, mkt_rev:0, calls:0 };
+  for (const [,d] of Object.entries(DATA)) {
+    t.calls += d.calls||0;
+    for (const r of Object.values(d.reps||{})) {
+      t.tgl_appts += r.tgl_appts||0; t.tgl_deals += r.tgl_deals||0; t.tgl_rev += r.tgl_rev||0;
+      t.mkt_appts += r.mkt_appts||0; t.mkt_deals += r.mkt_deals||0; t.mkt_rev += r.mkt_rev||0;
+    }
+  }
+  t.rev = t.tgl_rev + t.mkt_rev;
+  return t;
+}
+
+function repTotals(repName) {
+  const t = { tgl_appts:0, tgl_deals:0, tgl_rev:0, mkt_appts:0, mkt_deals:0, mkt_rev:0 };
+  for (const [,d] of Object.entries(DATA)) {
+    const r = d.reps?.[repName];
+    if (!r) continue;
+    t.tgl_appts += r.tgl_appts||0; t.tgl_deals += r.tgl_deals||0; t.tgl_rev += r.tgl_rev||0;
+    t.mkt_appts += r.mkt_appts||0; t.mkt_deals += r.mkt_deals||0; t.mkt_rev += r.mkt_rev||0;
+  }
+  t.rev = t.tgl_rev + t.mkt_rev;
+  t.total_appts = t.tgl_appts + t.mkt_appts;
+  t.total_deals = t.tgl_deals + t.mkt_deals;
+  return t;
+}
+
+function weekTotals() {
+  const weeks = [[],[],[],[],[],[]]; // weeks[0] = days 1-7 etc
+  for (let d=1;d<=31;d++) {
+    const w = Math.floor((d-1)/7);
+    weeks[w].push(d);
+  }
+  return weeks.filter(w=>w.length>0).map((days, wi) => {
+    const t = { week: wi+1, days, tgl_appts:0, tgl_deals:0, tgl_rev:0, mkt_appts:0, mkt_deals:0, mkt_rev:0 };
+    for (const d of days) {
+      for (const r of Object.values(DATA[d]?.reps||{})) {
+        t.tgl_appts += r.tgl_appts||0; t.tgl_deals += r.tgl_deals||0; t.tgl_rev += r.tgl_rev||0;
+        t.mkt_appts += r.mkt_appts||0; t.mkt_deals += r.mkt_deals||0; t.mkt_rev += r.mkt_rev||0;
+      }
+    }
+    t.rev = t.tgl_rev + t.mkt_rev;
+    return t;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════
+
+function render() {
+  CFG = loadConfig();
+  DATA = loadData();
+  renderOverview();
+  renderDaily();
+  renderTeam();
+  renderForecast();
+}
+
+// ── OVERVIEW ──
+function renderOverview() {
+  const mtd = mtdTotals();
+  const dwd = daysWithData().length;
+  const progress = CFG.target ? Math.min(100, Math.round(100*mtd.rev/CFG.target)) : 0;
+  const overallClose = pct(mtd.tgl_deals+mtd.mkt_deals, mtd.tgl_appts+mtd.mkt_appts);
+  const tglClose = pct(mtd.tgl_deals, mtd.tgl_appts);
+  const mktClose = pct(mtd.mkt_deals, mtd.mkt_appts);
+
+  document.getElementById('hdr-mtd').innerHTML =
+    `MTD: ${fmt$(mtd.rev)} &nbsp;|&nbsp; ${dwd} days logged &nbsp;|&nbsp; ${mtd.tgl_deals+mtd.mkt_deals} deals`;
+
+  const tglAvgTicket  = mtd.tgl_deals  ? mtd.tgl_rev  / mtd.tgl_deals  : 0;
+  const mktAvgTicket  = mtd.mkt_deals  ? mtd.mkt_rev  / mtd.mkt_deals  : 0;
+  const allDeals      = mtd.tgl_deals  + mtd.mkt_deals;
+  const cumAvgTicket  = allDeals       ? mtd.rev       / allDeals        : 0;
+
+  document.getElementById('ov-avg-cards').innerHTML = `
+    <div class="card">
+      <div class="card-label">TGL Avg Ticket</div>
+      <div class="card-value">${tglAvgTicket ? fmt$(tglAvgTicket) : '—'}</div>
+      <div class="card-sub">${mtd.tgl_deals} deals &nbsp;|&nbsp; ${fmt$(mtd.tgl_rev)} rev</div>
+    </div>
+    <div class="card">
+      <div class="card-label">MKT Avg Ticket</div>
+      <div class="card-value">${mktAvgTicket ? fmt$(mktAvgTicket) : '—'}</div>
+      <div class="card-sub">${mtd.mkt_deals} deals &nbsp;|&nbsp; ${fmt$(mtd.mkt_rev)} rev</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Cumulative Avg Ticket</div>
+      <div class="card-value">${cumAvgTicket ? fmt$(cumAvgTicket) : '—'}</div>
+      <div class="card-sub">${allDeals} total deals &nbsp;|&nbsp; ${fmt$(mtd.rev)} rev</div>
+    </div>
+  `;
+
+  document.getElementById('ov-cards').innerHTML = `
+    <div class="card ${progress>=100?'good':progress>=70?'':'bad'}">
+      <div class="card-label">MTD Revenue</div>
+      <div class="card-value">${fmt$(mtd.rev)}</div>
+      <div class="card-sub">${progress}% of ${fmt$(CFG.target)} target</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Deals</div>
+      <div class="card-value">${mtd.tgl_deals+mtd.mkt_deals}</div>
+      <div class="card-sub">TGL: ${mtd.tgl_deals} &nbsp; MKT: ${mtd.mkt_deals}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Overall Close %</div>
+      <div class="card-value">${overallClose}</div>
+      <div class="card-sub">TGL: ${tglClose} &nbsp; MKT: ${mktClose}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Appts</div>
+      <div class="card-value">${mtd.tgl_appts+mtd.mkt_appts}</div>
+      <div class="card-sub">TGL: ${mtd.tgl_appts} &nbsp; MKT: ${mtd.mkt_appts}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Service Calls</div>
+      <div class="card-value">${mtd.calls}</div>
+      <div class="card-sub">${dwd} days logged</div>
+    </div>
+  `;
+
+  // Alert
+  const gap = CFG.target - mtd.rev;
+  const daysLeft = CFG.workdays - dwd;
+  let alertHtml = '';
+  if (dwd > 0) {
+    const dailyNeeded = daysLeft > 0 ? gap/daysLeft : 0;
+    const dailyPace = mtd.rev / Math.max(1, dwd);
+    if (gap <= 0) {
+      alertHtml = `<div class="alert alert-green">🎯 Target hit! MTD revenue of ${fmt$(mtd.rev)} has cleared the ${fmt$(CFG.target)} goal.</div>`;
+    } else if (dailyNeeded > dailyPace * 1.5) {
+      alertHtml = `<div class="alert alert-red">⚠️ Behind pace — need ${fmt$(dailyNeeded)}/day for ${daysLeft} remaining days to hit target. Current pace: ${fmt$(dailyPace)}/day.</div>`;
+    } else {
+      alertHtml = `<div class="alert alert-amber">📈 On track — need ${fmt$(dailyNeeded)}/day over ${daysLeft} remaining days. Current pace: ${fmt$(dailyPace)}/day.</div>`;
+    }
+  }
+  document.getElementById('ov-alert').innerHTML = alertHtml;
+
+  // Rep table
+  const tbody = document.querySelector('#ov-rep-tbl tbody');
+  const tfoot = document.querySelector('#ov-rep-tbl tfoot');
+  tbody.innerHTML = allReps().map(rep => {
+    const t = repTotals(rep);
+    return `<tr>
+      <td><strong>${rep}</strong></td>
+      <td class="right">${t.tgl_appts}</td><td class="right">${t.tgl_deals}</td>
+      <td class="right">${t.mkt_appts}</td><td class="right">${t.mkt_deals}</td>
+      <td class="right">${fmt$(t.rev)}</td>
+      <td class="right">${pct(t.total_deals, t.total_appts)}</td>
+    </tr>`;
+  }).join('');
+  tfoot.innerHTML = `<tr class="total">
+    <td>TOTAL</td>
+    <td class="right">${mtd.tgl_appts}</td><td class="right">${mtd.tgl_deals}</td>
+    <td class="right">${mtd.mkt_appts}</td><td class="right">${mtd.mkt_deals}</td>
+    <td class="right">${fmt$(mtd.rev)}</td>
+    <td class="right">${overallClose}</td>
+  </tr>`;
+
+  // Progress
+  document.getElementById('ov-progress').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>Revenue Progress</span><span>${fmt$(mtd.rev)} / ${fmt$(CFG.target)}</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar ${progress>=100?'green':progress>=70?'':'red'}" style="width:${progress}%"></div></div>
+    </div>
+    ${allReps().map(rep=>{
+      const t = repTotals(rep);
+      const p = CFG.target ? Math.min(100,Math.round(100*t.rev/CFG.target*allReps().length)) : 0;
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span>${rep}</span><span>${fmt$(t.rev)} &nbsp; ${t.total_deals} deals</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${p}%"></div></div>
+      </div>`;
+    }).join('')}
+  `;
+
+  // Weekly breakdown
+  const weeks = weekTotals();
+  document.querySelector('#ov-weekly tbody').innerHTML = weeks.map(w=>`<tr>
+    <td>Week ${w.week} (Days ${w.days[0]}–${w.days[w.days.length-1]})</td>
+    <td class="right">${w.tgl_appts}</td><td class="right">${w.tgl_deals}</td>
+    <td class="right">${w.mkt_appts}</td><td class="right">${w.mkt_deals}</td>
+    <td class="right">${fmt$(w.rev)}</td>
+    <td class="right">${pct(w.tgl_deals+w.mkt_deals, w.tgl_appts+w.mkt_appts)}</td>
+  </tr>`).join('');
+}
+
+// ── DAILY LOG ──
+function renderDaily() {
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+  for (let d=1; d<=30; d++) {
+    const dayData = DATA[d] || { calls:0, reps:{} };
+    const repsData = allReps().map(r => dayData.reps?.[r] || { tgl_appts:0,tgl_deals:0,tgl_rev:0,mkt_appts:0,mkt_deals:0,mkt_rev:0 });
+    const hasData = repsData.some(r => r.tgl_appts||r.tgl_deals||r.mkt_appts||r.mkt_deals);
+    const dayRev = repsData.reduce((s,r)=>s+(r.tgl_rev||0)+(r.mkt_rev||0),0);
+
+    const card = document.createElement('div');
+    card.className = `day-card ${hasData?'has-data':'no-data'}`;
+    card.innerHTML = `
+      <h3 style="display:flex;justify-content:space-between;align-items:center">
+        <span>June ${d}</span>
+        <span style="font-size:11px;font-weight:400;color:#6b7280">${hasData?fmt$(dayRev)+' &nbsp; '+dayData.calls+' calls':'No data'}</span>
+      </h3>
+      ${hasData ? `
+      <div style="display:grid;grid-template-columns:80px 38px 38px 38px 38px 38px;gap:2px;font-size:10px;color:#9ca3af;margin-bottom:4px">
+        <div></div><div class="mini-cell">TGA</div><div class="mini-cell">TGD</div><div class="mini-cell">MKA</div><div class="mini-cell">MKD</div><div class="mini-cell">Rev</div>
+      </div>
+      ${allReps().map((rep,i) => {
+        const r = repsData[i];
+        const active = r.tgl_appts||r.tgl_deals||r.mkt_appts||r.mkt_deals;
+        if (!active) return '';
+        return `<div style="display:grid;grid-template-columns:80px 38px 38px 38px 38px 1fr;gap:2px;font-size:11px;padding:2px 0;border-top:1px solid #f3f4f6">
+          <div style="font-weight:600;font-size:10px">${rep}</div>
+          <div class="mini-cell">${r.tgl_appts||'—'}</div>
+          <div class="mini-cell">${r.tgl_deals||'—'}</div>
+          <div class="mini-cell">${r.mkt_appts||'—'}</div>
+          <div class="mini-cell">${r.mkt_deals||'—'}</div>
+          <div style="text-align:right;font-size:10px">${(r.tgl_rev||0)+(r.mkt_rev||0)?fmt$((r.tgl_rev||0)+(r.mkt_rev||0)):'—'}</div>
+        </div>`;
+      }).join('')}` : '<div style="font-size:11px;color:#9ca3af;text-align:center;padding:8px 0">Click to add data</div>'}
+      <button class="btn btn-gray" style="width:100%;margin-top:8px;font-size:11px;padding:4px" onclick="openModal(${d})">✏️ Edit</button>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+// ── TEAM ──
+function renderTeam() {
+  const tbody = document.querySelector('#team-tbl tbody');
+  const tfoot = document.querySelector('#team-tbl tfoot');
+  const mtd = mtdTotals();
+
+  tbody.innerHTML = allReps().map(rep => {
+    const t = repTotals(rep);
+    return `<tr>
+      <td><strong>${rep}</strong></td>
+      <td class="right">${t.tgl_appts}</td><td class="right">${t.tgl_deals}</td>
+      <td class="right">${pct(t.tgl_deals, t.tgl_appts)}</td>
+      <td class="right">${t.mkt_appts}</td><td class="right">${t.mkt_deals}</td>
+      <td class="right">${pct(t.mkt_deals, t.mkt_appts)}</td>
+      <td class="right">${t.total_deals}</td>
+      <td class="right">${fmt$(t.rev)}</td>
+      <td class="right">${t.total_deals?fmt$(t.rev/t.total_deals):'—'}</td>
+      <td class="right">${pct(t.total_deals, t.total_appts)}</td>
+      <td class="center">
+        <button class="btn btn-gray" style="font-size:10px;padding:2px 8px" onclick="renameRep('${rep}')">Rename</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tfoot.innerHTML = `<tr class="total">
+    <td>TOTAL</td>
+    <td class="right">${mtd.tgl_appts}</td><td class="right">${mtd.tgl_deals}</td>
+    <td class="right">${pct(mtd.tgl_deals,mtd.tgl_appts)}</td>
+    <td class="right">${mtd.mkt_appts}</td><td class="right">${mtd.mkt_deals}</td>
+    <td class="right">${pct(mtd.mkt_deals,mtd.mkt_appts)}</td>
+    <td class="right">${mtd.tgl_deals+mtd.mkt_deals}</td>
+    <td class="right">${fmt$(mtd.rev)}</td>
+    <td class="right">${(mtd.tgl_deals+mtd.mkt_deals)?fmt$(mtd.rev/(mtd.tgl_deals+mtd.mkt_deals)):'—'}</td>
+    <td class="right">${pct(mtd.tgl_deals+mtd.mkt_deals,mtd.tgl_appts+mtd.mkt_appts)}</td>
+    <td></td>
+  </tr>`;
+
+  // Close rate matrix
+  document.querySelector('#cr-matrix tbody').innerHTML = allReps().map(rep => {
+    const t = repTotals(rep);
+    const tglPct = pctN(t.tgl_deals, t.tgl_appts);
+    const mktPct = pctN(t.mkt_deals, t.mkt_appts);
+    const allPct = pctN(t.total_deals, t.total_appts);
+    const badge = (p) => {
+      if (!p) return '<span class="badge badge-amber">—</span>';
+      const c = p>=.5?'green':p>=.35?'amber':'red';
+      return `<span class="badge badge-${c}">${Math.round(p*100)}%</span>`;
+    };
+    return `<tr><td>${rep}</td><td class="center">${badge(tglPct)}</td><td class="center">${badge(mktPct)}</td><td class="center">${badge(allPct)}</td></tr>`;
+  }).join('');
+
+  // Revenue contribution
+  document.querySelector('#rev-contrib tbody').innerHTML = allReps().map(rep => {
+    const t = repTotals(rep);
+    const contrib = mtd.rev ? Math.round(100*t.rev/mtd.rev) : 0;
+    return `<tr><td>${rep}</td><td class="right">${fmt$(t.rev)}</td><td class="right">
+      <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+        ${contrib}%
+        <div class="prog-wrap" style="width:60px"><div class="prog-bar" style="width:${contrib}%"></div></div>
+      </div>
+    </td></tr>`;
+  }).join('');
+}
+
+// ── FORECAST ──
+function renderForecast() {
+  // Fill config inputs
+  document.getElementById('cfg-target').value   = CFG.target;
+  document.getElementById('cfg-workdays').value  = CFG.workdays;
+  document.getElementById('cfg-tgl-avg').value   = CFG.tglAvg;
+  document.getElementById('cfg-mkt-avg').value   = CFG.mktAvg;
+
+  const mtd = mtdTotals();
+  const dwd = daysWithData().length;
+  const daysLeft = Math.max(0, CFG.workdays - dwd);
+  const gap = Math.max(0, CFG.target - mtd.rev);
+  const dailyNeeded = daysLeft > 0 ? gap/daysLeft : 0;
+
+  document.getElementById('fc-target').textContent     = fmt$(CFG.target);
+  document.getElementById('fc-days-worked').textContent = dwd;
+  document.getElementById('fc-days-rem').textContent    = daysLeft;
+  document.getElementById('fc-mtd').textContent         = fmt$(mtd.rev);
+  document.getElementById('fc-daily-needed').textContent= daysLeft>0 ? fmt$(dailyNeeded) : 'Done';
+
+  const totalAppts = mtd.tgl_appts + mtd.mkt_appts;
+  const totalDeals = mtd.tgl_deals + mtd.mkt_deals;
+  const avgSale = totalDeals ? mtd.rev/totalDeals : (CFG.tglAvg + CFG.mktAvg)/2;
+  const closeRate = totalAppts ? totalDeals/totalAppts : 0.45;
+
+  // Scenarios: daily appt pace × close rate variation
+  const dailyAppts = dwd > 0 ? totalAppts/dwd : 0;
+
+  const scenarios = [
+    { label:'Best Case',  closeR: Math.min(closeRate*1.2, 0.7), avgS: avgSale*1.05 },
+    { label:'Base Case',  closeR: closeRate,                    avgS: avgSale       },
+    { label:'Worst Case', closeR: closeRate*0.85,               avgS: avgSale*0.95  },
+  ];
+
+  const rows = scenarios.map(s => {
+    const proj = mtd.rev + (dailyAppts * s.closeR * s.avgS * daysLeft);
+    const vs = proj - CFG.target;
+    return {...s, proj, vs };
+  });
+
+  document.getElementById('sc-best').textContent  = fmt$(rows[0].proj);
+  document.getElementById('sc-base').textContent  = fmt$(rows[1].proj);
+  document.getElementById('sc-worst').textContent = fmt$(rows[2].proj);
+  document.getElementById('sc-best-pct').textContent  = (rows[0].proj>=CFG.target?'✅ ':'')+Math.round(100*rows[0].proj/CFG.target)+'% of target';
+  document.getElementById('sc-base-pct').textContent  = (rows[1].proj>=CFG.target?'✅ ':'')+Math.round(100*rows[1].proj/CFG.target)+'% of target';
+  document.getElementById('sc-worst-pct').textContent = (rows[2].proj>=CFG.target?'✅ ':'')+Math.round(100*rows[2].proj/CFG.target)+'% of target';
+
+  document.getElementById('fc-scenario-rows').innerHTML = rows.map(s=>
+    `<tr>
+      <td>${s.label}</td>
+      <td class="right">${fmt$(s.proj)}</td>
+      <td class="right" style="color:${s.vs>=0?'var(--green)':'var(--red)'}">${s.vs>=0?'+':''}${fmt$(s.vs)}</td>
+      <td class="right">${Math.round(s.closeR*100)}%</td>
+      <td class="right">${fmt$(s.avgS)}</td>
+    </tr>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MODAL — Edit Day
+// ══════════════════════════════════════════════════════════════════
+
+function openModal(day) {
+  editingDay = day;
+  const d = DATA[day] || { calls:0, reps:{} };
+  document.getElementById('modal-title').textContent = `Edit — June ${day}`;
+  document.getElementById('m-calls').value = d.calls || 0;
+
+  const tbody = document.getElementById('modal-tbody');
+  tbody.innerHTML = allReps().map(rep => {
+    const r = d.reps?.[rep] || {};
+    return `<tr>
+      <td style="font-weight:600;font-size:12px">${rep}</td>
+      <td><input type="number" min="0" id="m-${rep}-ta" value="${r.tgl_appts||0}" style="width:55px"></td>
+      <td><input type="number" min="0" id="m-${rep}-td" value="${r.tgl_deals||0}" style="width:55px"></td>
+      <td><input type="number" min="0" id="m-${rep}-tr" value="${r.tgl_rev||0}" style="width:85px"></td>
+      <td><input type="number" min="0" id="m-${rep}-ma" value="${r.mkt_appts||0}" style="width:55px"></td>
+      <td><input type="number" min="0" id="m-${rep}-md" value="${r.mkt_deals||0}" style="width:55px"></td>
+      <td><input type="number" min="0" id="m-${rep}-mr" value="${r.mkt_rev||0}" style="width:85px"></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('edit-modal').style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+  editingDay = null;
+}
+
+function saveDay() {
+  if (!editingDay) return;
+  const d = { calls: +document.getElementById('m-calls').value||0, reps:{} };
+  for (const rep of allReps()) {
+    d.reps[rep] = {
+      tgl_appts: +document.getElementById(`m-${rep}-ta`).value||0,
+      tgl_deals: +document.getElementById(`m-${rep}-td`).value||0,
+      tgl_rev:   +document.getElementById(`m-${rep}-tr`).value||0,
+      mkt_appts: +document.getElementById(`m-${rep}-ma`).value||0,
+      mkt_deals: +document.getElementById(`m-${rep}-md`).value||0,
+      mkt_rev:   +document.getElementById(`m-${rep}-mr`).value||0,
+    };
+  }
+  DATA[editingDay] = d;
+  saveData(DATA);
+  closeModal();
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// IMPORT — Pace Report paste
+// ══════════════════════════════════════════════════════════════════
+
+function importPaste() {
+  const day   = +document.getElementById('imp-day').value;
+  const calls = +document.getElementById('imp-calls').value||0;
+  const raw   = document.getElementById('imp-paste').value.trim();
+  const msg   = document.getElementById('imp-result');
+
+  if (!day||day<1||day>31) { showMsg(msg,'err','Enter a valid day (1–31)'); return; }
+  if (!raw) { showMsg(msg,'err','Paste data first'); return; }
+
+  const reps = {};
+  let imported = 0;
+
+  for (const line of raw.split('\n')) {
+    const cols = line.split('\t').map(c=>c.trim());
+    if (cols.length < 2) continue;
+    const name = cols[0];
+    if (!name || name.toLowerCase().includes('rep name') || name.toLowerCase().includes('technician')) continue;
+
+    const n = (i) => { const v=parseFloat((cols[i]||'').replace(/[,$]/g,'')); return isNaN(v)?0:v; };
+    reps[name] = {
+      tgl_appts: n(1), tgl_deals: n(2), tgl_rev: n(3),
+      mkt_appts: n(4), mkt_deals: n(5), mkt_rev: n(6),
+    };
+    imported++;
+  }
+
+  if (!imported) { showMsg(msg,'err','No valid rep rows found. Check column order.'); return; }
+
+  DATA[day] = { calls, reps };
+  saveData(DATA);
+  render();
+  showMsg(msg,'ok',`Imported ${imported} reps for June ${day} ✓`);
+  document.getElementById('imp-paste').value = '';
+}
+
+// ServiceTitan import (columns: name, mkt_appts, mkt_deals, mkt_rev, tgl_appts, tgl_deals, tgl_rev)
+function importST() {
+  const day   = +document.getElementById('st-day').value;
+  const calls = +document.getElementById('st-calls').value||0;
+  const raw   = document.getElementById('st-paste').value.trim();
+  const msg   = document.getElementById('st-result');
+
+  if (!day||day<1||day>31) { showMsg(msg,'err','Enter a valid day (1–31)'); return; }
+  if (!raw) { showMsg(msg,'err','Paste ST data first'); return; }
+
+  // Auto-detect header row for column order
+  const lines = raw.split('\n');
+  let headerLine = -1, headerCols = [];
+  for (let i=0; i<Math.min(5,lines.length); i++) {
+    const cols = lines[i].split('\t').map(c=>c.trim().toLowerCase());
+    if (cols.some(c=>c.includes('technician')||c.includes('consultant'))) {
+      headerLine = i; headerCols = cols; break;
+    }
+  }
+
+  const idx = (arr, terms) => { for (const t of terms) { const i=arr.findIndex(c=>c.includes(t)); if(i>=0) return i; } return -1; };
+  const nameI = idx(headerCols,['technician','consultant','name']);
+  const mktAI = idx(headerCols,['mkt opportun','marketed opportun']);
+  const mktDI = idx(headerCols,['mkt jobs sold','marketed jobs sold','mkt sold']);
+  const mktRI = idx(headerCols,['mkt revenue','marketed revenue']);
+  const tglAI = idx(headerCols,['tgl opportun','tgl opps','turnover opportun']);
+  const tglDI = idx(headerCols,['tgl jobs sold','tgl sold','turnover jobs sold']);
+  const tglRI = idx(headerCols,['tgl revenue','turnover revenue']);
+
+  const reps = {};
+  let imported = 0;
+  const startLine = headerLine >= 0 ? headerLine+1 : 0;
+
+  for (let i=startLine; i<lines.length; i++) {
+    const cols = lines[i].split('\t').map(c=>c.trim());
+    if (cols.length < 3) continue;
+    const name = nameI >= 0 ? cols[nameI] : cols[0];
+    if (!name || !name.trim()) continue;
+    const n = (idx) => { if (idx<0||idx>=cols.length) return 0; const v=parseFloat(cols[idx].replace(/[,$]/g,'')); return isNaN(v)?0:v; };
+    reps[name] = {
+      tgl_appts: n(tglAI), tgl_deals: n(tglDI), tgl_rev: n(tglRI),
+      mkt_appts: n(mktAI), mkt_deals: n(mktDI), mkt_rev: n(mktRI),
+    };
+    imported++;
+  }
+
+  if (!imported) { showMsg(msg,'err','No valid rows found. Check column format.'); return; }
+  DATA[day] = { calls, reps };
+  saveData(DATA);
+  render();
+  showMsg(msg,'ok',`Imported ${imported} reps from ServiceTitan for June ${day} ✓`);
+  document.getElementById('st-paste').value = '';
+}
+
+function showMsg(el, type, text) {
+  el.textContent = text;
+  el.className = `result-msg ${type}`;
+  el.style.display = 'block';
+  setTimeout(()=>{ el.style.display='none'; }, 5000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// REP MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+
+function renameRep(oldName) {
+  const newName = prompt(`Rename "${oldName}" to:`, oldName);
+  if (!newName || newName === oldName) return;
+  const c = loadConfig();
+  const i = c.repNames.indexOf(oldName);
+  if (i>=0) c.repNames[i] = newName;
+  for (const [,d] of Object.entries(DATA)) {
+    if (d.reps?.[oldName]) { d.reps[newName] = d.reps[oldName]; delete d.reps[oldName]; }
+  }
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(c));
+  saveData(DATA);
+  CFG = c;
+  render();
+}
+
+function addRep() {
+  const name = prompt('New consultant name:');
+  if (!name) return;
+  const c = loadConfig();
+  if (!c.repNames.includes(name)) { c.repNames.push(name); localStorage.setItem(CONFIG_KEY, JSON.stringify(c)); CFG = c; render(); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DATA MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify({data:DATA,config:CFG},null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leslie_tracker_backup.json'; a.click();
+}
+
+function resetAll() {
+  if (!confirm('Reset ALL data back to the Pace Report seed data? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  DATA = loadData();
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════
+
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.tab[onclick*="${id}"]`).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Seed localStorage if empty (first open)
+  if (!localStorage.getItem(STORAGE_KEY)) saveData(DATA);
+  render();
+});
+
+// Close modal on backdrop click
+document.getElementById('edit-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+</script>
+</body>
+</html>
