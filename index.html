@@ -250,6 +250,15 @@
 <div class="page" id="tab-yoy">
   <h2 style="margin-bottom:4px">Year-over-Year — July 2026 vs July 2025</h2>
   <div style="font-size:11px;color:#6b7280;margin-bottom:14px">July 2025 baseline from the Nexstar Pace Report daily sheets. Same-period comparison runs through the latest day logged in 2026.</div>
+  <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">2026 vs 2025 — Jan–Jun (from the Pace Report YoY workbook)</div>
+  <div class="cards">
+    <div class="card bad"><div class="card-label">Revenue</div><div class="card-value">$4,125,420</div><div class="card-sub">2025: $4,239,374 &nbsp;(−2.7%)</div></div>
+    <div class="card bad"><div class="card-label">TGL Close %</div><div class="card-value">51.4%</div><div class="card-sub">2025: 60.6% &nbsp;(−9.2 pts)</div></div>
+    <div class="card bad"><div class="card-label">MKT Close %</div><div class="card-value">26.6%</div><div class="card-sub">2025: 41.8% &nbsp;(−15.2 pts)</div></div>
+    <div class="card bad"><div class="card-label">Overall Close %</div><div class="card-value">45.7%</div><div class="card-sub">2025: 55.9% &nbsp;(−10.2 pts)</div></div>
+    <div class="card good"><div class="card-label">TGL Avg Sale</div><div class="card-value">$14,438</div><div class="card-sub">2025: $13,450 &nbsp;(+7.3%)</div></div>
+    <div class="card good"><div class="card-label">MKT Avg Sale</div><div class="card-value">$14,639</div><div class="card-sub">2025: $11,624 &nbsp;(+25.9%)</div></div>
+  </div>
   <div class="cards" id="yoy-cards"></div>
   <div class="tbl-wrap">
     <table id="yoy-tbl">
@@ -263,6 +272,52 @@
       <tfoot></tfoot>
     </table>
   </div>
+  <h2 style="margin:16px 0 8px">Close Rate &amp; Avg Ticket by Day — TGL vs MKT</h2>
+  <div class="tbl-wrap">
+    <table id="yoy-detail-tbl">
+      <thead>
+        <tr>
+          <th rowspan="2" style="vertical-align:bottom">Day</th>
+          <th class="center" colspan="2" style="border-left:1px solid rgba(255,255,255,.25)">TGL Close %</th>
+          <th class="center" colspan="2" style="border-left:1px solid rgba(255,255,255,.25)">MKT Close %</th>
+          <th class="center" colspan="2" style="border-left:1px solid rgba(255,255,255,.25)">TGL Avg Ticket</th>
+          <th class="center" colspan="2" style="border-left:1px solid rgba(255,255,255,.25)">MKT Avg Ticket</th>
+        </tr>
+        <tr>
+          <th class="right" style="border-left:1px solid rgba(255,255,255,.25)">'25</th><th class="right">'26</th>
+          <th class="right" style="border-left:1px solid rgba(255,255,255,.25)">'25</th><th class="right">'26</th>
+          <th class="right" style="border-left:1px solid rgba(255,255,255,.25)">'25</th><th class="right">'26</th>
+          <th class="right" style="border-left:1px solid rgba(255,255,255,.25)">'25</th><th class="right">'26</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+  <div style="font-size:11px;color:#9ca3af;margin-top:6px">Single-day close rates and tickets swing hard on 1–2 deals — read the TOTAL row for the real month-level trend.</div>
+
+  <h2 style="margin:22px 0 4px">H1 A/B — Jan–Jun 2026 vs Jan–Jun 2025</h2>
+  <div style="font-size:11px;color:#6b7280;margin-bottom:10px">From the Nexstar Pace Report monthly files. Totals include self-gen (2 deals each year), so overall rows exceed TGL + MKT.</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th class="right">2025 H1</th><th class="right">2026 H1</th><th class="right">Δ</th></tr></thead>
+      <tbody>
+        <tr><td><strong>TGL avg ticket</strong></td><td class="right">$13,450</td><td class="right">$14,438</td><td class="right" style="color:var(--green)">+7.3%</td></tr>
+        <tr><td><strong>MKT avg ticket</strong></td><td class="right">$11,624</td><td class="right">$14,639</td><td class="right" style="color:var(--green)">+25.9%</td></tr>
+        <tr><td><strong>Overall avg ticket</strong></td><td class="right">$13,084</td><td class="right">$14,475</td><td class="right" style="color:var(--green)">+10.6%</td></tr>
+        <tr><td><strong>TGL close rate</strong></td><td class="right">60.6%</td><td class="right">51.4%</td><td class="right" style="color:var(--red)">−9.2 pts</td></tr>
+        <tr><td><strong>MKT close rate</strong></td><td class="right">41.8%</td><td class="right">26.6%</td><td class="right" style="color:var(--red)">−15.2 pts</td></tr>
+        <tr><td><strong>Overall close rate</strong></td><td class="right">55.9%</td><td class="right">45.7%</td><td class="right" style="color:var(--red)">−10.2 pts</td></tr>
+        <tr><td><strong>TGL appointments</strong></td><td class="right">431</td><td class="right">477</td><td class="right" style="color:var(--green)">+46</td></tr>
+        <tr><td><strong>MKT appointments</strong></td><td class="right">146</td><td class="right">143</td><td class="right" style="color:var(--red)">−3</td></tr>
+        <tr><td><strong>Total appointments</strong></td><td class="right">580</td><td class="right">623</td><td class="right" style="color:var(--green)">+43</td></tr>
+        <tr><td><strong>TGL sales</strong></td><td class="right">261 deals · $3.51M</td><td class="right">245 deals · $3.54M</td><td class="right" style="color:var(--green)">+0.8% rev</td></tr>
+        <tr><td><strong>MKT sales</strong></td><td class="right">61 deals · $709K</td><td class="right">38 deals · $556K</td><td class="right" style="color:var(--red)">−21.5% rev</td></tr>
+        <tr class="total"><td>Total sales</td><td class="right">324 deals · $4.24M</td><td class="right">285 deals · $4.13M</td><td class="right" style="color:var(--red)">−2.7% rev</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:11px;color:#9ca3af;margin-top:6px">Read: 2026 is up on ticket size and appointment volume, down on conversion — the close-rate gap is the whole revenue story.</div>
 </div>
 
 <!-- ══════════════════════ FORECAST ══════════════════════ -->
@@ -751,18 +806,36 @@ function renderYoY() {
   const lyAvg = lyDeals ? lyFull.rev/lyDeals : 0;
   const diff = mtd.rev - lySame.rev;
   const pDiff = lySame.rev ? Math.round(100*diff/lySame.rev) : 0;
-  document.getElementById('yoy-cards').innerHTML = `
-    <div class="card"><div class="card-label">July 2025 Revenue</div><div class="card-value">${fmt$(lyFull.rev)}</div>
-      <div class="card-sub">${lyDeals} deals &nbsp;|&nbsp; ${lyFull.tgl_appts+lyFull.mkt_appts} appts</div></div>
-    <div class="card"><div class="card-label">July 2025 Close %</div><div class="card-value">${lyClose}</div>
-      <div class="card-sub">TGL: ${pct(lyFull.tgl_deals,lyFull.tgl_appts)} &nbsp; MKT: ${pct(lyFull.mkt_deals,lyFull.mkt_appts)}</div></div>
-    <div class="card"><div class="card-label">July 2025 Avg Sale</div><div class="card-value">${lyAvg?fmt$(lyAvg):'—'}</div>
-      <div class="card-sub">team average</div></div>
-    <div class="card ${md?(diff>=0?'good':'bad'):''}"><div class="card-label">Same-Period Rev Δ${md?` (thru day ${md})`:''}</div>
-      <div class="card-value">${md?(diff>=0?'+':'')+pDiff+'%':'—'}</div>
-      <div class="card-sub">${md?fmt$(mtd.rev)+' vs '+fmt$(lySame.rev)+' LY':'log a day to compare'}</div></div>
-    <div class="card"><div class="card-label">Close % YoY</div><div class="card-value">${cyClose}</div>
-      <div class="card-sub">2025: ${lyClose}</div></div>
+  const cmp = md ? lySame : lyFull;
+  const period = md ? `thru day ${md}` : 'Jul 2025 full month';
+  function rateCard(label, cyD, cyA, lyD, lyA){
+    const cy = cyA ? Math.round(100*cyD/cyA) : null;
+    const ly = lyA ? Math.round(100*lyD/lyA) : null;
+    const cls = (cy===null||ly===null) ? '' : (cy>=ly?'good':'bad');
+    const delta = (cy===null||ly===null) ? '' : ` (${cy-ly>=0?'+':''}${cy-ly} pts)`;
+    return `<div class="card ${cls}"><div class="card-label">${label}</div>
+      <div class="card-value">${cy===null?'—':cy+'%'}</div>
+      <div class="card-sub">2025: ${ly===null?'—':ly+'%'}${delta}</div></div>`;
+  }
+  function avgCard(label, cyR, cyD, lyR, lyD){
+    const cy = cyD ? cyR/cyD : null;
+    const ly = lyD ? lyR/lyD : null;
+    const cls = (cy===null||ly===null) ? '' : (cy>=ly?'good':'bad');
+    const delta = (cy===null||ly===null||!ly) ? '' : ` (${cy-ly>=0?'+':''}${Math.round(100*(cy/ly-1))}%)`;
+    return `<div class="card ${cls}"><div class="card-label">${label}</div>
+      <div class="card-value">${cy===null?'—':fmt$(cy)}</div>
+      <div class="card-sub">2025: ${ly===null?'—':fmt$(ly)}${delta}</div></div>`;
+  }
+  document.getElementById('yoy-cards').innerHTML = !md ? '' : `
+    <div style="flex-basis:100%;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin:4px 0 -6px">July MTD vs July 2025 (thru day ${md})</div>
+    <div class="card ${diff>=0?'good':'bad'}"><div class="card-label">MTD Revenue</div>
+      <div class="card-value">${fmt$(mtd.rev)}</div>
+      <div class="card-sub">2025: ${fmt$(cmp.rev)} (${diff>=0?'+':''}${pDiff}%)</div></div>
+    ${rateCard('MTD TGL Close', mtd.tgl_deals, mtd.tgl_appts, cmp.tgl_deals, cmp.tgl_appts)}
+    ${rateCard('MTD MKT Close', mtd.mkt_deals, mtd.mkt_appts, cmp.mkt_deals, cmp.mkt_appts)}
+    ${rateCard('MTD Overall Close', mtd.tgl_deals+mtd.mkt_deals, mtd.tgl_appts+mtd.mkt_appts, cmp.tgl_deals+cmp.mkt_deals, cmp.tgl_appts+cmp.mkt_appts)}
+    ${avgCard('MTD TGL Avg Sale', mtd.tgl_rev, mtd.tgl_deals, cmp.tgl_rev, cmp.tgl_deals)}
+    ${avgCard('MTD MKT Avg Sale', mtd.mkt_rev, mtd.mkt_deals, cmp.mkt_rev, cmp.mkt_deals)}
   `;
   const tbody = document.querySelector('#yoy-tbl tbody');
   const tfoot = document.querySelector('#yoy-tbl tfoot');
@@ -802,6 +875,55 @@ function renderYoY() {
     <td class="right">${fmt$(cum25)}</td><td class="right">${fmt$(cum26)}</td>
     <td class="right">${cum25?Math.round(100*(cum26/cum25-1))+'%':'—'}</td>
     <td class="right">${pct(r25d,r25a)}</td><td class="right">${pct(r26d,r26a)}</td>
+  </tr>`;
+  renderYoYDetail();
+}
+
+function cyDayTotals(d){
+  const t={tgl_appts:0,tgl_deals:0,tgl_rev:0,mkt_appts:0,mkt_deals:0,mkt_rev:0,any:false};
+  const cy=DATA[d];
+  if(cy) for(const r of Object.values(cy.reps||{})){
+    t.tgl_appts+=r.tgl_appts||0;t.tgl_deals+=r.tgl_deals||0;t.tgl_rev+=r.tgl_rev||0;
+    t.mkt_appts+=r.mkt_appts||0;t.mkt_deals+=r.mkt_deals||0;t.mkt_rev+=r.mkt_rev||0;
+  }
+  t.any=!!cy&&(t.tgl_appts||t.mkt_appts||t.tgl_rev||t.mkt_rev);
+  return t;
+}
+function avgT(rev,deals){ return deals?fmt$(rev/deals):'—'; }
+function closeCell(deals,appts){ return appts?pct(deals,appts):'—'; }
+function renderYoYDetail(){
+  const tbody=document.querySelector('#yoy-detail-tbl tbody');
+  const tfoot=document.querySelector('#yoy-detail-tbl tfoot');
+  const T={t25a:0,t25d:0,t25r:0,m25a:0,m25d:0,m25r:0,t26a:0,t26d:0,t26r:0,m26a:0,m26d:0,m26r:0};
+  const bl='border-left:1px solid var(--border)';
+  tbody.innerHTML=Array.from({length:31},(_,i)=>i+1).map(d=>{
+    const ly=YOY_2025[d]||null;
+    const cy=cyDayTotals(d);
+    if(!ly&&!cy.any) return '';
+    if(ly){T.t25a+=ly.tgl_appts;T.t25d+=ly.tgl_deals;T.t25r+=ly.tgl_rev;T.m25a+=ly.mkt_appts;T.m25d+=ly.mkt_deals;T.m25r+=ly.mkt_rev;}
+    if(cy.any){T.t26a+=cy.tgl_appts;T.t26d+=cy.tgl_deals;T.t26r+=cy.tgl_rev;T.m26a+=cy.mkt_appts;T.m26d+=cy.mkt_deals;T.m26r+=cy.mkt_rev;}
+    return `<tr>
+      <td><strong>Jul ${d}</strong></td>
+      <td class="right" style="${bl}">${ly?closeCell(ly.tgl_deals,ly.tgl_appts):'—'}</td>
+      <td class="right">${cy.any?closeCell(cy.tgl_deals,cy.tgl_appts):'—'}</td>
+      <td class="right" style="${bl}">${ly?closeCell(ly.mkt_deals,ly.mkt_appts):'—'}</td>
+      <td class="right">${cy.any?closeCell(cy.mkt_deals,cy.mkt_appts):'—'}</td>
+      <td class="right" style="${bl}">${ly?avgT(ly.tgl_rev,ly.tgl_deals):'—'}</td>
+      <td class="right">${cy.any?avgT(cy.tgl_rev,cy.tgl_deals):'—'}</td>
+      <td class="right" style="${bl}">${ly?avgT(ly.mkt_rev,ly.mkt_deals):'—'}</td>
+      <td class="right">${cy.any?avgT(cy.mkt_rev,cy.mkt_deals):'—'}</td>
+    </tr>`;
+  }).join('');
+  tfoot.innerHTML=`<tr class="total">
+    <td>TOTAL</td>
+    <td class="right" style="${bl}">${closeCell(T.t25d,T.t25a)}</td>
+    <td class="right">${closeCell(T.t26d,T.t26a)}</td>
+    <td class="right" style="${bl}">${closeCell(T.m25d,T.m25a)}</td>
+    <td class="right">${closeCell(T.m26d,T.m26a)}</td>
+    <td class="right" style="${bl}">${avgT(T.t25r,T.t25d)}</td>
+    <td class="right">${avgT(T.t26r,T.t26d)}</td>
+    <td class="right" style="${bl}">${avgT(T.m25r,T.m25d)}</td>
+    <td class="right">${avgT(T.m26r,T.m26d)}</td>
   </tr>`;
 }
 
