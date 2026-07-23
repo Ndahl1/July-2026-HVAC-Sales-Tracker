@@ -131,6 +131,7 @@
   <div class="tab" onclick="showTab('daily')">Daily Log</div>
   <div class="tab" onclick="showTab('team')">Team</div>
   <div class="tab" onclick="showTab('forecast')">Forecast</div>
+  <div class="tab" onclick="showTab('yoy')">YoY vs 2025</div>
   <div class="tab" onclick="showTab('import')">Import Data</div>
 </div>
 
@@ -242,6 +243,25 @@
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ YOY ══════════════════════ -->
+<div class="page" id="tab-yoy">
+  <h2 style="margin-bottom:4px">Year-over-Year — July 2026 vs July 2025</h2>
+  <div style="font-size:11px;color:#6b7280;margin-bottom:14px">July 2025 baseline from the Nexstar Pace Report daily sheets. Same-period comparison runs through the latest day logged in 2026.</div>
+  <div class="cards" id="yoy-cards"></div>
+  <div class="tbl-wrap">
+    <table id="yoy-tbl">
+      <thead><tr>
+        <th>Day</th>
+        <th class="right">2025 Rev</th><th class="right">2026 Rev</th><th class="right">Day Δ</th>
+        <th class="right">2025 MTD</th><th class="right">2026 MTD</th><th class="right">MTD Δ%</th>
+        <th class="right">2025 Close%</th><th class="right">2026 Close%</th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
   </div>
 </div>
 
@@ -390,6 +410,22 @@
 const PACE_DATA = {}; // July starts clean — log days via Import Data or the Daily Log
 
 // ══════════════════════════════════════════════════════════════════
+// YOY — July 2025 daily team totals (from 07_-_July_2025_Sales_Manager_Pace_Report.xlsx
+// daily sheets, per-rep grid under "Calls Ran"; 2 Other/Self-Gen appts with $0 folded into MKT)
+// ══════════════════════════════════════════════════════════════════
+const YOY_2025 = {"1":{"tgl_appts":3,"tgl_deals":1,"tgl_rev":16000,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"2":{"tgl_appts":3,"tgl_deals":1,"tgl_rev":15280,"mkt_appts":2,"mkt_deals":1,"mkt_rev":15900},"3":{"tgl_appts":3,"tgl_deals":2,"tgl_rev":37050,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"5":{"tgl_appts":1,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"7":{"tgl_appts":6,"tgl_deals":4,"tgl_rev":77051,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"8":{"tgl_appts":6,"tgl_deals":3,"tgl_rev":42927,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"9":{"tgl_appts":7,"tgl_deals":4,"tgl_rev":58530,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"10":{"tgl_appts":3,"tgl_deals":1,"tgl_rev":16686,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"11":{"tgl_appts":2,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"12":{"tgl_appts":1,"tgl_deals":0,"tgl_rev":0,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"14":{"tgl_appts":6,"tgl_deals":3,"tgl_rev":55748,"mkt_appts":2,"mkt_deals":0,"mkt_rev":0},"15":{"tgl_appts":6,"tgl_deals":4,"tgl_rev":58033,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"16":{"tgl_appts":3,"tgl_deals":1,"tgl_rev":7750,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"17":{"tgl_appts":3,"tgl_deals":1,"tgl_rev":7999,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"18":{"tgl_appts":3,"tgl_deals":2,"tgl_rev":19000,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"19":{"tgl_appts":1,"tgl_deals":1,"tgl_rev":16400,"mkt_appts":2,"mkt_deals":0,"mkt_rev":0},"21":{"tgl_appts":5,"tgl_deals":3,"tgl_rev":39500,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"22":{"tgl_appts":4,"tgl_deals":3,"tgl_rev":33500,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"23":{"tgl_appts":2,"tgl_deals":2,"tgl_rev":31900,"mkt_appts":2,"mkt_deals":0,"mkt_rev":0},"24":{"tgl_appts":5,"tgl_deals":5,"tgl_rev":86508,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"25":{"tgl_appts":3,"tgl_deals":2,"tgl_rev":28500,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"26":{"tgl_appts":1,"tgl_deals":1,"tgl_rev":34000,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"28":{"tgl_appts":5,"tgl_deals":4,"tgl_rev":65472,"mkt_appts":0,"mkt_deals":0,"mkt_rev":0},"29":{"tgl_appts":5,"tgl_deals":3,"tgl_rev":44000,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"30":{"tgl_appts":5,"tgl_deals":2,"tgl_rev":54500,"mkt_appts":1,"mkt_deals":0,"mkt_rev":0},"31":{"tgl_appts":1,"tgl_deals":1,"tgl_rev":15000,"mkt_appts":3,"mkt_deals":1,"mkt_rev":10000}};
+function yoyDayTotal(d){ const t=YOY_2025[d]; return t ? t.tgl_rev+t.mkt_rev : 0; }
+function yoyTotals(throughDay){
+  const t={tgl_appts:0,tgl_deals:0,tgl_rev:0,mkt_appts:0,mkt_deals:0,mkt_rev:0,rev:0};
+  for(const [d,v] of Object.entries(YOY_2025)){
+    if(throughDay && +d>throughDay) continue;
+    t.tgl_appts+=v.tgl_appts;t.tgl_deals+=v.tgl_deals;t.tgl_rev+=v.tgl_rev;
+    t.mkt_appts+=v.mkt_appts;t.mkt_deals+=v.mkt_deals;t.mkt_rev+=v.mkt_rev;
+  }
+  t.rev=t.tgl_rev+t.mkt_rev; return t;
+}
+
+// ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
 
@@ -520,6 +556,7 @@ function render() {
   renderDaily();
   renderTeam();
   renderForecast();
+  renderYoY();
 }
 
 // ── OVERVIEW ──
@@ -583,6 +620,14 @@ function renderOverview() {
       <div class="card-value">${mtd.calls}</div>
       <div class="card-sub">${dwd} days logged</div>
     </div>
+    ${(()=>{const md=Math.max(0,...daysWithData());const ly=yoyTotals(md||31);const lyFull=yoyTotals();
+      if(!md) return `<div class="card"><div class="card-label">vs July 2025</div><div class="card-value">—</div><div class="card-sub">July 2025 total: ${fmt$(lyFull.rev)}</div></div>`;
+      const diff=mtd.rev-ly.rev;const p=ly.rev?Math.round(100*diff/ly.rev):0;
+      return `<div class="card ${diff>=0?'good':'bad'}">
+        <div class="card-label">vs July 2025 (thru day ${md})</div>
+        <div class="card-value">${(diff>=0?'+':'')+p}%</div>
+        <div class="card-sub">${fmt$(mtd.rev)} vs ${fmt$(ly.rev)} LY &nbsp;|&nbsp; FY Jul '25: ${fmt$(lyFull.rev)}</div>
+      </div>`;})()}
   `;
 
   // Alert
@@ -669,7 +714,7 @@ function renderDaily() {
     card.innerHTML = `
       <h3 style="display:flex;justify-content:space-between;align-items:center">
         <span>July ${d}</span>
-        <span style="font-size:11px;font-weight:400;color:#6b7280">${hasData?fmt$(dayRev)+' &nbsp; '+dayData.calls+' calls':'No data'}</span>
+        <span style="font-size:11px;font-weight:400;color:#6b7280">${hasData?fmt$(dayRev)+' &nbsp; '+dayData.calls+' calls':'No data'}${yoyDayTotal(d)?` &nbsp;<span style="color:#9ca3af">LY ${fmt$(yoyDayTotal(d))}</span>`:''}</span>
       </h3>
       ${hasData ? `
       <div style="display:grid;grid-template-columns:80px 38px 38px 38px 38px 38px;gap:2px;font-size:10px;color:#9ca3af;margin-bottom:4px">
@@ -692,6 +737,72 @@ function renderDaily() {
     `;
     grid.appendChild(card);
   }
+}
+
+// ── YOY ──
+function renderYoY() {
+  const mtd = mtdTotals();
+  const md = Math.max(0,...daysWithData());
+  const lySame = yoyTotals(md||31);
+  const lyFull = yoyTotals();
+  const lyClose = pct(lyFull.tgl_deals+lyFull.mkt_deals, lyFull.tgl_appts+lyFull.mkt_appts);
+  const cyClose = pct(mtd.tgl_deals+mtd.mkt_deals, mtd.tgl_appts+mtd.mkt_appts);
+  const lyDeals = lyFull.tgl_deals+lyFull.mkt_deals;
+  const lyAvg = lyDeals ? lyFull.rev/lyDeals : 0;
+  const diff = mtd.rev - lySame.rev;
+  const pDiff = lySame.rev ? Math.round(100*diff/lySame.rev) : 0;
+  document.getElementById('yoy-cards').innerHTML = `
+    <div class="card"><div class="card-label">July 2025 Revenue</div><div class="card-value">${fmt$(lyFull.rev)}</div>
+      <div class="card-sub">${lyDeals} deals &nbsp;|&nbsp; ${lyFull.tgl_appts+lyFull.mkt_appts} appts</div></div>
+    <div class="card"><div class="card-label">July 2025 Close %</div><div class="card-value">${lyClose}</div>
+      <div class="card-sub">TGL: ${pct(lyFull.tgl_deals,lyFull.tgl_appts)} &nbsp; MKT: ${pct(lyFull.mkt_deals,lyFull.mkt_appts)}</div></div>
+    <div class="card"><div class="card-label">July 2025 Avg Sale</div><div class="card-value">${lyAvg?fmt$(lyAvg):'—'}</div>
+      <div class="card-sub">team average</div></div>
+    <div class="card ${md?(diff>=0?'good':'bad'):''}"><div class="card-label">Same-Period Rev Δ${md?` (thru day ${md})`:''}</div>
+      <div class="card-value">${md?(diff>=0?'+':'')+pDiff+'%':'—'}</div>
+      <div class="card-sub">${md?fmt$(mtd.rev)+' vs '+fmt$(lySame.rev)+' LY':'log a day to compare'}</div></div>
+    <div class="card"><div class="card-label">Close % YoY</div><div class="card-value">${cyClose}</div>
+      <div class="card-sub">2025: ${lyClose}</div></div>
+  `;
+  const tbody = document.querySelector('#yoy-tbl tbody');
+  const tfoot = document.querySelector('#yoy-tbl tfoot');
+  let cum25=0, cum26=0, r25a=0, r25d=0, r26a=0, r26d=0;
+  tbody.innerHTML = Array.from({length:31},(_,i)=>i+1).map(d=>{
+    const ly = YOY_2025[d];
+    const lyRev = ly ? ly.tgl_rev+ly.mkt_rev : 0;
+    const cy = DATA[d];
+    let cyRev=0, cyA=0, cyD=0;
+    if (cy) for (const r of Object.values(cy.reps||{})) {
+      cyRev+=(r.tgl_rev||0)+(r.mkt_rev||0); cyA+=(r.tgl_appts||0)+(r.mkt_appts||0); cyD+=(r.tgl_deals||0)+(r.mkt_deals||0);
+    }
+    if(!ly && !cyRev && !cyA) return '';
+    cum25+=lyRev; cum26+=cyRev;
+    if(ly){r25a+=ly.tgl_appts+ly.mkt_appts; r25d+=ly.tgl_deals+ly.mkt_deals;}
+    r26a+=cyA; r26d+=cyD;
+    const dayDiff = cyRev-lyRev;
+    const hasCY = !!cy;
+    const mtdP = (hasCY && cum25) ? Math.round(100*(cum26/cum25-1)) : null;
+    return `<tr>
+      <td><strong>Jul ${d}</strong></td>
+      <td class="right">${lyRev?fmt$(lyRev):'—'}</td>
+      <td class="right">${hasCY?fmt$(cyRev):'—'}</td>
+      <td class="right" style="color:${!hasCY?'#9ca3af':dayDiff>=0?'var(--green)':'var(--red)'}">${hasCY?(dayDiff>=0?'+':'')+fmt$(Math.abs(dayDiff)).replace('$',dayDiff>=0?'$':'-$'):'—'}</td>
+      <td class="right">${fmt$(cum25)}</td>
+      <td class="right">${hasCY?fmt$(cum26):'—'}</td>
+      <td class="right" style="color:${mtdP===null?'#9ca3af':mtdP>=0?'var(--green)':'var(--red)'}">${mtdP===null?'—':(mtdP>=0?'+':'')+mtdP+'%'}</td>
+      <td class="right">${ly?pct(ly.tgl_deals+ly.mkt_deals, ly.tgl_appts+ly.mkt_appts):'—'}</td>
+      <td class="right">${cyA?pct(cyD,cyA):'—'}</td>
+    </tr>`;
+  }).join('');
+  tfoot.innerHTML = `<tr class="total">
+    <td>TOTAL</td>
+    <td class="right">${fmt$(cum25)}</td>
+    <td class="right">${fmt$(cum26)}</td>
+    <td class="right">${(cum26-cum25>=0?'+':'-')+fmt$(Math.abs(cum26-cum25)).slice(0)}</td>
+    <td class="right">${fmt$(cum25)}</td><td class="right">${fmt$(cum26)}</td>
+    <td class="right">${cum25?Math.round(100*(cum26/cum25-1))+'%':'—'}</td>
+    <td class="right">${pct(r25d,r25a)}</td><td class="right">${pct(r26d,r26a)}</td>
+  </tr>`;
 }
 
 // ── TEAM ──
